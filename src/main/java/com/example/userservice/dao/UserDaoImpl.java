@@ -1,7 +1,7 @@
-package com.example.dao;
+package com.example.userservice.dao;
 
-import com.example.entity.User;
-import com.example.util.HibernateUtil;
+import com.example.userservice.entity.User;
+import com.example.userservice.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;

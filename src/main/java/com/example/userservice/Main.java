@@ -1,9 +1,9 @@
-package com.example;
+package com.example.userservice;
 
-import com.example.dao.UserDao;
-import com.example.dao.UserDaoImpl;
-import com.example.entity.User;
-import com.example.util.HibernateUtil;
+import com.example.userservice.dao.UserDao;
+import com.example.userservice.dao.UserDaoImpl;
+import com.example.userservice.entity.User;
+import com.example.userservice.util.HibernateUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

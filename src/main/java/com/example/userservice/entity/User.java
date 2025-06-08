@@ -1,4 +1,4 @@
-package com.example.entity;
+package com.example.userservice.entity;
 
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
