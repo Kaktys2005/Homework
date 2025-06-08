@@ -4,11 +4,15 @@ import com.example.entity.User;
 import com.example.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 public class UserDaoImpl implements UserDao {
+    private static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+
     @Override
     public Optional<User> findById(Long id) {
         Transaction transaction = null;
@@ -21,7 +25,7 @@ public class UserDaoImpl implements UserDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
+            logger.error("Error finding user by id: {}", id, e);
             return Optional.empty();
         }
     }
@@ -38,7 +42,7 @@ public class UserDaoImpl implements UserDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
+            logger.error("Error finding all users", e);
             return List.of();
         }
     }
@@ -55,7 +59,7 @@ public class UserDaoImpl implements UserDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
+            logger.error("Error saving user: {}", user, e);
             throw e;
         }
     }
@@ -72,7 +76,7 @@ public class UserDaoImpl implements UserDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
+            logger.error("Error updating user: {}", user, e);
             throw e;
         }
     }
@@ -88,7 +92,7 @@ public class UserDaoImpl implements UserDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
+            logger.error("Error deleting user: {}", user, e);
             throw e;
         }
     }
