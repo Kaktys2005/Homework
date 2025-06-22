@@ -2,15 +2,12 @@ package com.example.userservice.dao;
 
 import com.example.userservice.entity.User;
 import com.example.userservice.util.HibernateUtil;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.hibernate.cfg.Configuration;
+import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,11 +26,20 @@ class UserDaoImplTest {
 
     @BeforeAll
     static void beforeAll() {
-        // Настраиваем Hibernate для использования Testcontainers
-        System.setProperty("hibernate.connection.url", postgresContainer.getJdbcUrl());
-        System.setProperty("hibernate.connection.username", postgresContainer.getUsername());
-        System.setProperty("hibernate.connection.password", postgresContainer.getPassword());
+        // Проверяем, что контейнер запущен
+        assertTrue(postgresContainer.isRunning());
 
+        // Настраиваем Hibernate для работы с Testcontainers
+        Configuration configuration = new Configuration()
+                .setProperty("hibernate.connection.url", postgresContainer.getJdbcUrl())
+                .setProperty("hibernate.connection.username", postgresContainer.getUsername())
+                .setProperty("hibernate.connection.password", postgresContainer.getPassword())
+                .setProperty("hibernate.hbm2ddl.auto", "update") // Автоматическое создание таблиц
+                .setProperty("hibernate.show_sql", "true") // Логирование SQL
+                .setProperty("hibernate.format_sql", "true")
+                .addAnnotatedClass(User.class);
+
+        HibernateUtil.setConfiguration(configuration);
         userDao = new UserDaoImpl();
     }
 
@@ -42,8 +48,16 @@ class UserDaoImplTest {
         // Очищаем таблицу перед каждым тестом
         try (var session = HibernateUtil.getSessionFactory().openSession()) {
             var transaction = session.beginTransaction();
-            session.createQuery("delete from User").executeUpdate();
-            transaction.commit();
+            try {
+                // Более надежный способ очистки таблицы
+                session.createNativeQuery("TRUNCATE TABLE users RESTART IDENTITY CASCADE").executeUpdate();
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                throw e;
+            }
         }
     }
 
