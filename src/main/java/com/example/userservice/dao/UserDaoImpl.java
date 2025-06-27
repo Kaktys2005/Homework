@@ -15,35 +15,22 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Optional<User> findById(Long id) {
-        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
             User user = session.get(User.class, id);
-            transaction.commit();
             return Optional.ofNullable(user);
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             logger.error("Error finding user by id: {}", id, e);
-            return Optional.empty();
+            throw new RuntimeException("Failed to find user by id: " + id, e);
         }
     }
 
     @Override
     public List<User> findAll() {
-        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            List<User> users = session.createQuery("from User", User.class).list();
-            transaction.commit();
-            return users;
+            return session.createQuery("from User", User.class).list();
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             logger.error("Error finding all users", e);
-            return List.of();
+            throw new RuntimeException("Failed to retrieve all users", e);
         }
     }
 
@@ -60,7 +47,7 @@ public class UserDaoImpl implements UserDao {
                 transaction.rollback();
             }
             logger.error("Error saving user: {}", user, e);
-            throw e;
+            throw new RuntimeException("Failed to save user", e);
         }
     }
 
@@ -77,7 +64,7 @@ public class UserDaoImpl implements UserDao {
                 transaction.rollback();
             }
             logger.error("Error updating user: {}", user, e);
-            throw e;
+            throw new RuntimeException("Failed to update user", e);
         }
     }
 
@@ -93,7 +80,7 @@ public class UserDaoImpl implements UserDao {
                 transaction.rollback();
             }
             logger.error("Error deleting user: {}", user, e);
-            throw e;
+            throw new RuntimeException("Failed to delete user", e);
         }
     }
 }
